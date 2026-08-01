@@ -97,7 +97,8 @@
       if (el) el.classList.toggle("active", p === name);
     }
     document.querySelectorAll(".nav-item").forEach((b) => {
-      b.classList.toggle("active", b.dataset.nav === name || (name === "quiz" && (b.dataset.nav === "home")));
+      b.classList.toggle("active", b.dataset.nav === name ||
+        ((name === "quiz" || name === "tutorial") && b.dataset.nav === "home"));
     });
     if (name === "home") refreshHome();
     if (name === "wrong") renderWrong();
@@ -137,6 +138,47 @@
     } finally {
       hideLoading();
     }
+  }
+
+  /* ---------- 新手教学 ---------- */
+  function renderTutorialList() {
+    const list = $("tutorial-list");
+    list.innerHTML = "";
+    TUTORIALS.forEach((t, i) => {
+      const item = document.createElement("div");
+      item.className = "tut-item";
+      item.innerHTML =
+        '<span class="tut-icon">' + t.icon + "</span>" +
+        '<span class="tut-info"><span class="tut-title">' + (i + 1) + ". " + t.title +
+        '</span><span class="tut-sub">' + t.subtitle + "</span></span>" +
+        '<span class="tut-arrow">›</span>';
+      item.onclick = () => openTutorial(t);
+      list.appendChild(item);
+    });
+  }
+
+  function openTutorial(t) {
+    $("tutorial-head").textContent = t.title;
+    $("tutorial-list").style.display = "none";
+    const view = $("tutorial-view");
+    view.innerHTML = t.content;
+    view.style.display = "block";
+    // 返回按钮回到列表
+    const back = $("page-tutorial").querySelector(".back-btn");
+    back.onclick = () => {
+      $("tutorial-head").textContent = "新手教学";
+      view.style.display = "none";
+      $("tutorial-list").style.display = "block";
+    };
+    window.scrollTo(0, 0);
+  }
+
+  function showTutorial() {
+    renderTutorialList();
+    $("tutorial-list").style.display = "block";
+    $("tutorial-view").style.display = "none";
+    $("tutorial-head").textContent = "新手教学";
+    showPage("tutorial");
   }
 
   /* ---------- 首页 ---------- */
@@ -636,6 +678,7 @@
         const g = b.dataset.goto;
         if (g === "random") startRandom();
         else if (g === "select") { initSelect(); showPage("select"); }
+        else if (g === "tutorial") showTutorial();
         else if (g === "wrong") showPage("wrong");
         else if (g === "stats") showPage("stats");
       };

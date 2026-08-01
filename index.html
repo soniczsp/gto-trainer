@@ -46,6 +46,11 @@
     </div>
 
     <nav class="home-menu">
+      <button class="menu-btn" data-goto="tutorial">
+        <span class="menu-icon">📚</span>
+        <span class="menu-title">新手教学</span>
+        <span class="menu-desc">读懂规则与 GTO 概念</span>
+      </button>
       <button class="menu-btn" data-goto="random">
         <span class="menu-icon">🎲</span>
         <span class="menu-title">随机练习</span>
@@ -136,6 +141,16 @@
     </div>
   </div>
 
+  <!-- ============ 新手教学 ============ -->
+  <div class="page" id="page-tutorial">
+    <div class="page-head">
+      <button class="back-btn" data-back>‹ 返回</button>
+      <h2 id="tutorial-head">新手教学</h2>
+    </div>
+    <div id="tutorial-list"></div>
+    <div id="tutorial-view" style="display:none"></div>
+  </div>
+
   <!-- ============ 统计 ============ -->
   <div class="page" id="page-stats">
     <div class="page-head">
@@ -174,10 +189,11 @@
   </div>
 </div>
 
+<script src="js/tutorials.js?v=12"></script>
 <script>window.POKER_DATA_VERSION = 3;</script>
-<script src="js/storage.js?v=11"></script>
-<script src="js/cards.js?v=11"></script>
-<script src="js/app.js?v=11"></script>
+<script src="js/storage.js?v=12"></script>
+<script src="js/cards.js?v=12"></script>
+<script src="js/app.js?v=12"></script>
 <script>
   // 注册 Service Worker：首次加载后全量缓存，离线可用
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
@@ -188,6 +204,7 @@
 </script>
 </body>
 </html>
+
 
 
 
