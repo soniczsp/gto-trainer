@@ -245,6 +245,13 @@ def main():
                         results.append(item)
                         progress[street] += 1
                         save_progress()
+                        # 增量存盘：每完成 50 题写一次，中断时最多丢失 50 题
+                        if progress[street] % 50 == 0:
+                            try:
+                                with open(out_path, "w", encoding="utf-8") as f:
+                                    json.dump(results, f, ensure_ascii=False, indent=0)
+                            except Exception:
+                                pass
                     return
                 except Exception as e:
                     if attempt == 2:
