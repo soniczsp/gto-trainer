@@ -26,6 +26,47 @@
     return Promise.all(streets.map(loadBank)).then(() => streets.reduce((a, s) => a.concat(BANK[s]), []));
   }
 
+  /* ---------- 讲解加载（按街懒加载，无文件时静默） ---------- */
+  const EXPL = { preflop: null, flop: null, turn: null, river: null };
+
+  function loadExpl(street) {
+    if (EXPL[street]) return Promise.resolve(EXPL[street]);
+    return new Promise((resolve) => {
+      const s = document.createElement("script");
+      s.src = "data/expl_" + street + ".js?v=" + (window.POKER_DATA_VERSION || 1);
+      s.onload = () => {
+        EXPL[street] = window["POKER_EXPL__" + street] || [];
+        resolve(EXPL[street]);
+      };
+      s.onerror = () => {
+        EXPL[street] = [];
+        resolve(EXPL[street]);
+      };
+      document.head.appendChild(s);
+    });
+  }
+
+  function renderExpl(q) {
+    const box = $("explain-box");
+    const list = EXPL[q.street] || [];
+    const e = list.find((x) => x.id === q.id);
+    if (!e) {
+      box.style.display = "none";
+      return;
+    }
+    const x = e.explanation || {};
+    const sec = (title, body) =>
+      body ? '<div class="explain-sec"><div class="explain-h">' + title +
+        '</div><div class="explain-body">' + esc(body) + "</div></div>" : "";
+    box.innerHTML =
+      '<div class="explain-title">GTO 讲解</div>' +
+      sec("为什么正确", x.why) +
+      sec("常见误区", x.mistake) +
+      '<div class="explain-sec summary"><div class="explain-h">一句话总结</div>' +
+      '<div class="explain-body">' + esc(x.summary || "") + "</div></div>";
+    box.style.display = "block";
+  }
+
   /* ---------- 工具 ---------- */
   function shuffle(arr) {
     const a = arr.slice();
@@ -257,6 +298,7 @@
       this.current = q;
       this.answered = false;
       $("quiz-result").style.display = "none";
+      $("explain-box").style.display = "none";
       $("btn-next").style.display = "none";
 
       // 进度
@@ -344,6 +386,8 @@
       res.style.display = "block";
 
       $("btn-next").style.display = "block";
+      // 异步加载并显示该题讲解（无讲解文件时静默隐藏）
+      loadExpl(q.street).then(() => renderExpl(q));
     },
 
     next() {

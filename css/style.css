@@ -223,6 +223,19 @@ body {
 .quiz-result .r-correct { color: var(--gold-light); font-weight: 700; }
 .next-btn { margin-top: 14px; }
 
+/* ============ 讲解展示 ============ */
+.explain-box {
+  margin-top: 14px; padding: 14px 16px; border-radius: 12px;
+  background: rgba(212,175,55,.07); border: 1px solid rgba(212,175,55,.35);
+  animation: fadeIn .25s ease;
+}
+.explain-title { color: var(--gold-light); font-weight: 700; font-size: 15px; margin-bottom: 6px; letter-spacing: 1px; }
+.explain-sec { margin-top: 10px; }
+.explain-h { color: var(--gold-light); font-size: 12.5px; font-weight: 600; margin-bottom: 4px; }
+.explain-body { font-size: 13.5px; line-height: 1.85; color: var(--text); }
+.explain-sec.summary { background: rgba(212,175,55,.1); border-radius: 8px; padding: 8px 12px; margin-top: 12px; }
+.explain-sec.summary .explain-body { color: var(--gold-light); font-weight: 500; }
+
 /* ============ 错题本 ============ */
 .wrong-actions { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
 .wrong-list { display: flex; flex-direction: column; gap: 10px; }

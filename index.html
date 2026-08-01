@@ -114,6 +114,7 @@
       <div class="action-line" id="action-line"></div>
       <div class="quiz-options" id="quiz-options"></div>
       <div class="quiz-result" id="quiz-result" style="display:none"></div>
+      <div class="explain-box" id="explain-box" style="display:none"></div>
       <button class="primary-btn next-btn" id="btn-next" style="display:none">下一题</button>
     </div>
   </div>
@@ -159,10 +160,10 @@
   </div>
 </div>
 
-<script>window.POKER_DATA_VERSION = 1;</script>
-<script src="js/storage.js?v=8"></script>
-<script src="js/cards.js?v=8"></script>
-<script src="js/app.js?v=8"></script>
+<script>window.POKER_DATA_VERSION = 2;</script>
+<script src="js/storage.js?v=9"></script>
+<script src="js/cards.js?v=9"></script>
+<script src="js/app.js?v=9"></script>
 <script>
   // 注册 Service Worker：首次加载后全量缓存，离线可用
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
@@ -173,6 +174,8 @@
 </script>
 </body>
 </html>
+
+
 
 
 

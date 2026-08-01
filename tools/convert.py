@@ -59,7 +59,11 @@ def parse_moves(raw_moves, street):
         items = raw_moves
     else:
         items = json.loads(raw_moves.replace("'", '"'))
-    return [norm_action(m, street) for m in items]
+    moves = [norm_action(m, street) for m in items]
+    # 翻前单选项题（如仅剩弃牌）补充"跟注"，保证题目有决策空间
+    if street == "preflop" and len(moves) < 2:
+        moves.insert(0, norm_action("call", street))
+    return moves
 
 
 def norm_correct(raw, moves, street):
