@@ -74,6 +74,7 @@
       <button class="link-btn danger" id="btn-reset">重置进度</button>
       <input type="file" id="import-file" accept=".json" style="display:none">
     </div>
+    <button class="support-btn" id="btn-support">☕ 支持制作者</button>
     <p class="foot-note">数据与记录仅保存在本机浏览器，不联网、不上传</p>
   </div>
 
@@ -144,6 +145,17 @@
     <div class="stats-body" id="stats-body"></div>
   </div>
 
+  <!-- 打赏弹窗 -->
+  <div class="modal-mask" id="support-modal" style="display:none">
+    <div class="modal-box">
+      <button class="modal-close" id="support-close">✕</button>
+      <div class="modal-title">☕ 支持制作者</div>
+      <div class="modal-desc">GTO 策略训练器完全免费。<br>如果它对你有所帮助，欢迎请作者喝杯咖啡，打赏随意。</div>
+      <img class="modal-qr" src="img/reward-wechat.jpg" alt="微信赞赏码">
+      <div class="modal-hint">微信扫一扫，感谢你的支持</div>
+    </div>
+  </div>
+
   <!-- 底部导航 -->
   <nav class="bottom-nav">
     <button class="nav-item active" data-nav="home"><span>🏠</span><em>首页</em></button>
@@ -161,9 +173,9 @@
 </div>
 
 <script>window.POKER_DATA_VERSION = 3;</script>
-<script src="js/storage.js?v=9"></script>
-<script src="js/cards.js?v=9"></script>
-<script src="js/app.js?v=9"></script>
+<script src="js/storage.js?v=10"></script>
+<script src="js/cards.js?v=10"></script>
+<script src="js/app.js?v=10"></script>
 <script>
   // 注册 Service Worker：首次加载后全量缓存，离线可用
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
@@ -174,6 +186,7 @@
 </script>
 </body>
 </html>
+
 
 
 

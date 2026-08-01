@@ -680,6 +680,14 @@
     };
     $("btn-reset").onclick = resetAll;
 
+    // 支持制作者弹窗
+    const supportModal = $("support-modal");
+    $("btn-support").onclick = () => { supportModal.style.display = "flex"; };
+    $("support-close").onclick = () => { supportModal.style.display = "none"; };
+    supportModal.addEventListener("click", (e) => {
+      if (e.target === supportModal) supportModal.style.display = "none";
+    });
+
     $("btn-wrong-retry").onclick = startWrongRetry;
     $("btn-wrong-clear").onclick = () => {
       if (!confirm("确定清空错题本？")) return;

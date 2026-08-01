@@ -1,5 +1,5 @@
 ﻿/* GTO 策略训练器 Service Worker：首次访问后全量缓存，之后完全离线可用 */
-const CACHE = "gto-trainer-v6";
+const CACHE = "gto-trainer-v7";
 
 const ASSETS = [
   "./",
@@ -14,6 +14,7 @@ const ASSETS = [
   "./data/turn.js",
   "./data/river.js",
   "./icons/icon-192.png",
+  "./img/reward-wechat.jpg",
   "./icons/icon-512.png",
 ];
 
@@ -66,6 +67,7 @@ self.addEventListener("fetch", (e) => {
     })
   );
 });
+
 
 
 
