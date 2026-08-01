@@ -50,20 +50,17 @@ const Cards = (function () {
         "%;top:" + y.toFixed(1) + '%"><span class="seat-main">' + pos +
         '</span><span class="seat-sub">' + sub + "</span></div>";
     }
-    // hero 手牌（桌子下方）
-    html += '<div class="hero-cards">' + holdingHtml(heroHolding) + "</div>";
     return html;
   }
 
-  /* 翻牌后：我的位置永远在下方，对手在上方 */
+  /* 翻牌后：我的位置永远在下方，对手在上方（桌子外） */
   function renderHeadsUp(heroPos, heroHolding) {
     const opp = heroPos === "IP" ? "OOP" : "IP";
     return (
-      '<div class="seat" style="left:50%;top:10%"><span class="seat-main">' + opp +
+      '<div class="seat" style="left:50%;top:-12px"><span class="seat-main">' + opp +
       '</span><span class="seat-sub">对手</span></div>' +
       '<div class="seat hero" style="left:50%;top:88%"><span class="seat-main">' + heroPos +
-      '</span><span class="seat-sub">你</span></div>' +
-      '<div class="hero-cards">' + holdingHtml(heroHolding) + "</div>"
+      '</span><span class="seat-sub">你</span></div>'
     );
   }
 
@@ -135,7 +132,7 @@ const Cards = (function () {
     return segs.join("");
   }
 
-  /* 完整牌桌渲染 */
+  /* 完整牌桌渲染：桌子 + 下方独立的手牌行 */
   function renderTable(question) {
     let seats;
     if (question.street === "preflop") {
@@ -149,12 +146,17 @@ const Cards = (function () {
     if (question.street !== "preflop") {
       board = '<div class="board-cards">' + question.board.map((c) => cardHtml(c)).join("") + "</div>";
     }
+    // 底池徽章：翻前放桌心（无公共牌），翻牌后放顶部（公共牌上方）
+    const potCls = question.street === "preflop" ? "pot-badge center" : "pot-badge";
     return (
       '<div class="table-wrap"><div class="table-inner">' +
       seats +
       board +
-      '<div class="pot-badge"><small>底池</small>' + fmtPot(question.potSize) + " bb</div>" +
-      "</div></div>"
+      '<div class="' + potCls + '">底池 ' + fmtPot(question.potSize) + " bb</div>" +
+      "</div></div>" +
+      '<div class="hero-hand"><span class="hero-hand-label">你的手牌 (' +
+      question.heroPos + ")</span><span class=\"hero-cards\">" +
+      holdingHtml(question.holding) + "</span></div>"
     );
   }
 

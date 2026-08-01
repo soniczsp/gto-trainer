@@ -74,6 +74,31 @@
     $("loading-mask").style.display = "none";
   }
 
+  /* ---------- 题目代码检索 ---------- */
+  const CODE_STREETS = { P: "preflop", F: "flop", T: "turn", R: "river" };
+
+  async function searchQuestion(code) {
+    const c = String(code || "").trim().toUpperCase();
+    if (!c) return;
+    const street = CODE_STREETS[c[0]];
+    if (!street) {
+      alert("代码格式不对：应以 P / F / T / R 开头（P=翻前 F=翻牌 T=转牌 R=河牌）");
+      return;
+    }
+    showLoading("查找题目…");
+    try {
+      const bank = await loadBank(street);
+      const q = bank.find((x) => x.code === c);
+      if (!q) {
+        alert("未找到题目 " + c + "，请检查代码后重试");
+        return;
+      }
+      Quiz.start("search", [q]);
+    } finally {
+      hideLoading();
+    }
+  }
+
   /* ---------- 首页 ---------- */
   async function refreshHome() {
     try {
@@ -237,6 +262,7 @@
       // 进度
       $("quiz-progress").textContent =
         "第 " + (this.idx + 1) + " / " + this.queue.length + " 题" +
+        (q.code ? " · " + q.code : "") +
         (this.lastStats.n ? " · 本次 " + this.lastStats.ok + "/" + this.lastStats.n : "");
 
       // 元信息
@@ -299,7 +325,7 @@
       Storage.recordAnswer(rec).catch(() => {});
       if (!isCorrect) {
         Storage.addWrong({
-          questionId: q.id, street: q.street, heroPos: q.heroPos,
+          questionId: q.id, code: q.code, street: q.street, heroPos: q.heroPos,
           holding: q.holding, correct: q.correct.label,
           moves: q.moves.map((m) => m.label), ts: Date.now(),
         }).catch(() => {});
@@ -446,6 +472,7 @@
       }).join(" ");
       item.innerHTML =
         '<div class="wi-top"><div class="wi-tags">' +
+        '<span class="wi-tag">' + esc(w.code || w.questionId) + "</span>" +
         '<span class="wi-tag">' + STREET_CN[w.street] + "</span>" +
         '<span class="wi-tag">' + esc(w.heroPos) + "</span>" +
         '<span class="wi-tag">错 ' + (w.count || 1) + " 次</span>" +
@@ -594,6 +621,11 @@
     });
 
     $("sel-start").onclick = startSpecial;
+
+    $("code-search-btn").onclick = () => searchQuestion($("code-input").value);
+    $("code-input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") searchQuestion($("code-input").value);
+    });
 
     $("btn-next").onclick = goNextDefault;
 

@@ -24,6 +24,12 @@
       <p class="app-sub">11000 道题 · 翻前 / 翻牌 / 转牌 / 河牌 · 本地离线</p>
     </header>
 
+    <div class="search-bar">
+      <input id="code-input" type="text" placeholder="输入题目代码查题，如 R1024" maxlength="12" autocomplete="off">
+      <button id="code-search-btn">查题</button>
+    </div>
+    <p class="search-hint">代码格式：P=翻前 F=翻牌 T=转牌 R=河牌，如 P0032 / F0214 / T1888 / R1024</p>
+
     <div class="home-stats" id="home-stats">
       <div class="stat-card">
         <div class="stat-num" id="home-total">0</div>
@@ -104,7 +110,7 @@
     </div>
     <div class="quiz-body">
       <div class="quiz-meta" id="quiz-meta"></div>
-      <div class="table-wrap" id="table-area"></div>
+      <div id="table-area"></div>
       <div class="action-line" id="action-line"></div>
       <div class="quiz-options" id="quiz-options"></div>
       <div class="quiz-result" id="quiz-result" style="display:none"></div>
@@ -154,9 +160,9 @@
 </div>
 
 <script>window.POKER_DATA_VERSION = 1;</script>
-<script src="js/storage.js?v=2"></script>
-<script src="js/cards.js?v=2"></script>
-<script src="js/app.js?v=2"></script>
+<script src="js/storage.js?v=8"></script>
+<script src="js/cards.js?v=8"></script>
+<script src="js/app.js?v=8"></script>
 <script>
   // 注册 Service Worker：首次加载后全量缓存，离线可用
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
@@ -167,4 +173,10 @@
 </script>
 </body>
 </html>
+
+
+
+
+
+
 

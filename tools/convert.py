@@ -239,6 +239,16 @@ def main():
     for q in all_questions:
         slices[q["street"]].append(q)
 
+    # 生成题目代码：街前缀 + 街内序号（P=翻前/F=翻牌/T=转牌/R=河牌）
+    PREFIX = {"preflop": "P", "flop": "F", "turn": "T", "river": "R"}
+    seen_codes = set()
+    for street, items in slices.items():
+        for i, q in enumerate(items, 1):
+            q["code"] = PREFIX[street] + str(i).zfill(4)
+            if q["code"] in seen_codes:
+                total_errors.append("重复代码: %s" % q["code"])
+            seen_codes.add(q["code"])
+
     for street, items in slices.items():
         path = os.path.join(DATA_DIR, "%s.js" % street)
         with open(path, "w", encoding="utf-8") as f:
@@ -259,6 +269,8 @@ def main():
     print("源数据行数: preflop=%d postflop=%d 合计=%d" % (len(pre_rows), len(po_rows), len(pre_rows) + len(po_rows)))
     print("转换后题数: %d" % len(all_questions))
     print("分片分布: %s" % {k: len(v) for k, v in slices.items()})
+    print("代码示例: %s" % [q["code"] for q in slices["preflop"][:3]] + " ...")
+    print("代码唯一性: %s" % ("通过 (%d 个)" % len(seen_codes) if len(seen_codes) == len(all_questions) else "异常!"))
     if total_errors:
         print("异常 %d 条:" % len(total_errors))
         for e in total_errors[:20]:
