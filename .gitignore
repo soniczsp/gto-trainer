@@ -1,0 +1,14 @@
+# 转换产物（可由 tools/convert.py 重新生成）
+data/all.json
+
+# V2 讲解生成产物与 API 配置
+explanations/
+tools/config.json
+
+# Python
+__pycache__/
+*.pyc
+
+# 系统
+.DS_Store
+Thumbs.db

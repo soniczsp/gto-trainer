@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>GTO 策略训练器</title>
+<meta name="description" content="11000 道 PokerBench 预求解题，翻前/翻牌/转牌/河牌四街策略训练">
+<meta name="theme-color" content="#14532d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GTO训练">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <!-- ============ 首页 ============ -->
+  <div class="page" id="page-home">
+    <header class="app-header">
+      <div class="app-logo">♠</div>
+      <h1>GTO 策略训练器</h1>
+      <p class="app-sub">11000 道题 · 翻前 / 翻牌 / 转牌 / 河牌 · 本地离线</p>
+    </header>
+
+    <div class="home-stats" id="home-stats">
+      <div class="stat-card">
+        <div class="stat-num" id="home-total">0</div>
+        <div class="stat-label">已做题</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="home-rate">--</div>
+        <div class="stat-label">总正确率</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="home-wrong">0</div>
+        <div class="stat-label">错题数</div>
+      </div>
+    </div>
+
+    <nav class="home-menu">
+      <button class="menu-btn" data-goto="random">
+        <span class="menu-icon">🎲</span>
+        <span class="menu-title">随机练习</span>
+        <span class="menu-desc">全街随机抽题</span>
+      </button>
+      <button class="menu-btn" data-goto="select">
+        <span class="menu-icon">🎯</span>
+        <span class="menu-title">专项练习</span>
+        <span class="menu-desc">按街 / 位置 / 人数 / 视角</span>
+      </button>
+      <button class="menu-btn" data-goto="wrong">
+        <span class="menu-icon">📕</span>
+        <span class="menu-title">错题本</span>
+        <span class="menu-desc">回顾与重练</span>
+      </button>
+      <button class="menu-btn" data-goto="stats">
+        <span class="menu-icon">📊</span>
+        <span class="menu-title">统计</span>
+        <span class="menu-desc">薄弱点分析</span>
+      </button>
+    </nav>
+
+    <div class="home-tools">
+      <button class="link-btn" id="btn-export">导出记录</button>
+      <button class="link-btn" id="btn-import">导入记录</button>
+      <button class="link-btn danger" id="btn-reset">重置进度</button>
+      <input type="file" id="import-file" accept=".json" style="display:none">
+    </div>
+    <p class="foot-note">数据与记录仅保存在本机浏览器，不联网、不上传</p>
+  </div>
+
+  <!-- ============ 专项选择 ============ -->
+  <div class="page" id="page-select">
+    <div class="page-head">
+      <button class="back-btn" data-back>‹ 返回</button>
+      <h2>专项练习</h2>
+    </div>
+    <div class="select-body">
+      <div class="select-group">
+        <div class="group-title">选择牌局阶段</div>
+        <div class="chip-row" id="sel-street">
+          <button class="chip" data-street="preflop">翻前</button>
+          <button class="chip" data-street="flop">翻牌</button>
+          <button class="chip" data-street="turn">转牌</button>
+          <button class="chip" data-street="river">河牌</button>
+        </div>
+      </div>
+      <div class="select-group" id="sel-sub-group" style="display:none">
+        <div class="group-title" id="sel-sub-title">选择分类</div>
+        <div class="chip-row" id="sel-sub"></div>
+      </div>
+      <div class="select-body-info" id="sel-info"></div>
+      <button class="primary-btn" id="sel-start" style="display:none">开始练习</button>
+    </div>
+  </div>
+
+  <!-- ============ 做题 ============ -->
+  <div class="page" id="page-quiz">
+    <div class="page-head">
+      <button class="back-btn" data-back>‹ 退出</button>
+      <div class="quiz-progress" id="quiz-progress">--</div>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-meta" id="quiz-meta"></div>
+      <div class="table-wrap" id="table-area"></div>
+      <div class="action-line" id="action-line"></div>
+      <div class="quiz-options" id="quiz-options"></div>
+      <div class="quiz-result" id="quiz-result" style="display:none"></div>
+      <button class="primary-btn next-btn" id="btn-next" style="display:none">下一题</button>
+    </div>
+  </div>
+
+  <!-- ============ 错题本 ============ -->
+  <div class="page" id="page-wrong">
+    <div class="page-head">
+      <button class="back-btn" data-back>‹ 返回</button>
+      <h2>错题本</h2>
+    </div>
+    <div class="wrong-body">
+      <div class="wrong-actions">
+        <button class="primary-btn small" id="btn-wrong-retry">重练错题</button>
+        <button class="link-btn danger" id="btn-wrong-clear">清空错题本</button>
+      </div>
+      <div id="wrong-list" class="wrong-list"></div>
+      <div class="empty-tip" id="wrong-empty" style="display:none">还没有错题，继续保持</div>
+    </div>
+  </div>
+
+  <!-- ============ 统计 ============ -->
+  <div class="page" id="page-stats">
+    <div class="page-head">
+      <button class="back-btn" data-back>‹ 返回</button>
+      <h2>统计</h2>
+    </div>
+    <div class="stats-body" id="stats-body"></div>
+  </div>
+
+  <!-- 底部导航 -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-nav="home"><span>🏠</span><em>首页</em></button>
+    <button class="nav-item" data-nav="select"><span>🎯</span><em>专项</em></button>
+    <button class="nav-item" data-nav="wrong"><span>📕</span><em>错题</em></button>
+    <button class="nav-item" data-nav="stats"><span>📊</span><em>统计</em></button>
+  </nav>
+</div>
+
+<div class="loading-mask" id="loading-mask" style="display:none">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <div id="loading-text">加载题库中…</div>
+  </div>
+</div>
+
+<script>window.POKER_DATA_VERSION = 1;</script>
+<script src="js/storage.js?v=1"></script>
+<script src="js/cards.js?v=1"></script>
+<script src="js/app.js?v=1"></script>
+<script>
+  // 注册 Service Worker：首次加载后全量缓存，离线可用
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "GTO 策略训练器",
+  "short_name": "GTO训练",
+  "description": "11000 道 PokerBench 预求解题，翻前/翻牌/转牌/河牌四街策略训练，离线可用",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0f0d",
+  "theme_color": "#14532d",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
