@@ -115,6 +115,8 @@ class Provider:
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0.3,
             "max_tokens": 800,
+            # 关闭思考模式：讲解生成不需要 CoT，更快且避免额外 token
+            "thinking": {"type": "disabled"},
         }).encode("utf-8")
         req = urllib.request.Request(self.url, data=body, method="POST", headers={
             "Content-Type": "application/json",
