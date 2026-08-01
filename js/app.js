@@ -62,8 +62,7 @@
       '<div class="explain-title">GTO 讲解</div>' +
       sec("为什么正确", x.why) +
       sec("常见误区", x.mistake) +
-      '<div class="explain-sec summary"><div class="explain-h">一句话总结</div>' +
-      '<div class="explain-body">' + esc(x.summary || "") + "</div></div>";
+      sec("一句话总结", x.summary);
     box.style.display = "block";
   }
 
