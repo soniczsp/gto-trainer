@@ -264,7 +264,7 @@
       q.moves.forEach((m, i) => {
         const b = document.createElement("button");
         b.className = "opt-btn";
-        b.innerHTML = esc(m.label) + '<span class="opt-label">' + esc(optHint(m)) + "</span>";
+        b.innerHTML = esc(m.label);
         b.onclick = () => this.answer(i, b);
         opts.appendChild(b);
       });
@@ -346,13 +346,6 @@
   };
 
   function goNextDefault() { Quiz.next(); }
-
-  function optHint(m) {
-    // 带尺度的选项 label 已含动作词（下注 24 / 加注 88 / 加注 3.0bb），不需要辅助文字
-    if (m.size != null) return "";
-    const map = { fold: "弃牌", call: "跟注", check: "过牌", allin: "全下" };
-    return map[m.action] || "";
-  }
 
   /* ---------- 启动各种练习 ---------- */
   async function startRandom() {
