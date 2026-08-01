@@ -119,10 +119,10 @@ body {
     radial-gradient(ellipse at center, rgba(0,0,0,.18) 0%, rgba(0,0,0,.38) 100%),
     linear-gradient(160deg, var(--felt-light), var(--felt-dark));
   border: 6px solid #7a4a21; border-radius: 50%;
-  min-height: 240px; position: relative; box-shadow: inset 0 0 40px rgba(0,0,0,.45), var(--shadow);
+  min-height: 210px; position: relative; box-shadow: inset 0 0 40px rgba(0,0,0,.45), var(--shadow);
   padding: 14px;
 }
-.table-inner { position: relative; height: 100%; min-height: 210px; }
+.table-inner { position: relative; height: 100%; min-height: 180px; }
 
 .seat {
   position: absolute; transform: translate(-50%, -50%);
@@ -133,17 +133,13 @@ body {
 .seat.hero { border-color: var(--gold); background: rgba(212,175,55,.18); color: var(--gold-light); font-weight: 700; }
 .seat .seat-sub { display: block; font-size: 10px; color: var(--text-dim); font-weight: 400; }
 
-.hero-cards { position: absolute; left: 50%; bottom: -8px; transform: translateX(-50%); display: flex; gap: 6px; z-index: 2; }
-.board-cards { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); display: flex; gap: 5px; z-index: 2; }
+.hero-cards { position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%); display: flex; gap: 7px; z-index: 3; }
+.board-cards { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; gap: 5px; z-index: 2; }
 .board-cards .pcard { width: 40px; height: 57px; font-size: 13px; }
-.board-label {
-  position: absolute; top: 72px; left: 50%; transform: translateX(-50%);
-  font-size: 11px; color: rgba(255,255,255,.6); letter-spacing: 1px; z-index: 2;
-}
 .pot-badge {
-  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  position: absolute; left: 50%; top: 12%; transform: translateX(-50%);
   background: rgba(0,0,0,.5); border: 1.5px solid var(--gold); color: var(--gold-light);
-  border-radius: 999px; padding: 6px 16px; font-size: 14px; font-weight: 700; z-index: 2; white-space: nowrap;
+  border-radius: 999px; padding: 3px 14px; font-size: 14px; font-weight: 700; z-index: 2; white-space: nowrap;
 }
 .pot-badge small { display: block; text-align: center; font-size: 10px; font-weight: 400; color: rgba(255,255,255,.65); }
 
@@ -158,10 +154,17 @@ body {
 .pcard.red { color: var(--card-red); }
 
 .action-line {
-  margin: 12px 0; padding: 10px 14px; background: rgba(255,255,255,.05);
-  border-radius: 10px; font-size: 12.5px; line-height: 1.8; color: var(--text-dim);
-  max-height: 96px; overflow-y: auto;
+  margin: 12px 0; padding: 10px 12px; background: rgba(255,255,255,.05);
+  border-radius: 10px; font-size: 12.5px; line-height: 1.9; color: var(--text-dim);
+  max-height: 150px; overflow-y: auto;
 }
+.as-row { display: flex; gap: 8px; align-items: flex-start; }
+.as-label {
+  flex: 0 0 auto; background: rgba(212,175,55,.15); border: 1px solid rgba(212,175,55,.3);
+  color: var(--gold-light); border-radius: 6px; padding: 1px 8px; font-size: 11px;
+  margin-top: 3px; white-space: nowrap;
+}
+.as-line { flex: 1; min-width: 0; }
 .action-line b { color: var(--text); font-weight: 600; }
 .action-line .deal { color: var(--gold-light); }
 .action-line .act-you { color: #7fd4a0; }
@@ -254,8 +257,8 @@ body {
 /* ============ 桌面端适配 ============ */
 @media (min-width: 700px) {
   #app { max-width: 720px; }
-  .table-wrap { min-height: 300px; }
-  .table-inner { min-height: 270px; }
+  .table-wrap { min-height: 250px; }
+  .table-inner { min-height: 220px; }
   .quiz-options { flex-direction: row; }
   .opt-btn { flex: 1; }
 }

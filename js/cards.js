@@ -39,8 +39,9 @@ const Cards = (function () {
     const heroAngle = 90; // 正下方
     let html = "";
     for (let i = 0; i < n; i++) {
+      // 椭圆参数：横向 42%，纵向 34%，hero 固定在正下方
       const angle = ((heroAngle + i * (360 / n)) * Math.PI) / 180;
-      const x = 50 + 36 * Math.cos(angle);
+      const x = 50 + 42 * Math.cos(angle);
       const y = 50 + 34 * Math.sin(angle);
       const pos = ordered[i];
       const isHero = pos === heroPos;
@@ -49,19 +50,19 @@ const Cards = (function () {
         "%;top:" + y.toFixed(1) + '%"><span class="seat-main">' + pos +
         '</span><span class="seat-sub">' + sub + "</span></div>";
     }
-    // hero 手牌（底部）
+    // hero 手牌（桌子下方）
     html += '<div class="hero-cards">' + holdingHtml(heroHolding) + "</div>";
     return html;
   }
 
-  /* 翻牌后：IP/OOP 对坐 */
+  /* 翻牌后：我的位置永远在下方，对手在上方 */
   function renderHeadsUp(heroPos, heroHolding) {
     const opp = heroPos === "IP" ? "OOP" : "IP";
     return (
-      '<div class="seat hero" style="left:50%;top:86%"><span class="seat-main">' + heroPos +
-      '（你）</span></div>' +
-      '<div class="seat" style="left:50%;top:14%"><span class="seat-main">' + opp +
-      "（对手）</span></div>" +
+      '<div class="seat" style="left:50%;top:10%"><span class="seat-main">' + opp +
+      '</span><span class="seat-sub">对手</span></div>' +
+      '<div class="seat hero" style="left:50%;top:88%"><span class="seat-main">' + heroPos +
+      '</span><span class="seat-sub">你</span></div>' +
       '<div class="hero-cards">' + holdingHtml(heroHolding) + "</div>"
     );
   }
@@ -80,39 +81,62 @@ const Cards = (function () {
     return "<b" + cls + ">" + act + "</b>";
   }
 
+  /* 按街拆分翻牌后动作序列：deal 事件作为新街起点 */
+  function splitPostflop(events) {
+    const out = { flop: [], turn: [], river: [] };
+    let cur = "flop";
+    for (const ev of events) {
+      if (ev.type === "deal") cur = cur === "flop" ? "turn" : "river";
+      out[cur].push(ev);
+    }
+    return out;
+  }
+
+  /* 动作序列按街分段渲染：翻前 / 翻牌 / 转牌 / 河牌 */
   function renderActionLine(question) {
-    const parts = [];
-    // 翻前动作
+    const segs = [];
+    const STREET_NAMES = { preflop: "翻前", flop: "翻牌", turn: "转牌", river: "河牌" };
+
+    function evHtml(ev) {
+      if (ev.type === "deal") {
+        const p = cardParts(ev.card);
+        return '<span class="deal">发牌 ' + p.rank + p.sym + "</span>";
+      }
+      return "<span>" + ev.who + " " + actText(ev.act, ev.who === question.heroPos) + "</span>";
+    }
+
+    function pushSeg(label, items, maxItems) {
+      const list = maxItems && items.length > maxItems ? items.slice(-maxItems) : items;
+      if (!list.length) return;
+      const html = list.map(evHtml).join(" → ");
+      segs.push('<div class="as-row"><span class="as-label">' + label +
+        "</span><span class=\"as-line\">" + html + "</span></div>");
+    }
+
     if (question.street === "preflop") {
-      for (const ev of question.prevLine || []) {
-        parts.push('<span>' + ev.who + " " + actText(ev.act, ev.who === question.heroPos) + "</span>");
+      const line = question.prevLine || [];
+      pushSeg("翻前", line, 10);
+      if (line.length > 10) {
+        segs.push('<div class="as-row"><span class="as-label">…</span>' +
+          '<span class="as-line">动作较多，已省略前 ' + (line.length - 10) + " 个</span></div>");
       }
     } else {
-      // 翻牌后：先显示简短的翻前动作，再显示翻牌后动作
-      for (const ev of (question.preflopAction || []).slice(-4)) {
-        parts.push('<span>' + ev.who + " " + actText(ev.act, false) + "</span>");
+      pushSeg("翻前", question.preflopAction || [], 6);
+      const byStreet = splitPostflop(question.postflopAction || []);
+      const order = ["flop", "turn", "river"];
+      const stopIdx = { flop: 0, turn: 1, river: 2 }[question.street];
+      if (stopIdx === undefined) {
+        // 兜底：显示全部
       }
-      if ((question.preflopAction || []).length > 4) {
-        parts.unshift('<span class="deal">…</span>');
-      }
-      if ((question.postflopAction || []).length) {
-        parts.push('<span class="deal">▸ 翻牌后</span>');
-      }
-      for (const ev of question.postflopAction || []) {
-        if (ev.type === "deal") {
-          const p = cardParts(ev.card);
-          parts.push('<span class="deal">发牌 ' + p.rank + p.sym + "</span>");
-        } else {
-          parts.push("<span>" + ev.who + " " + actText(ev.act, ev.who === question.heroPos) + "</span>");
-        }
+      for (let i = 0; i <= (stopIdx === undefined ? 2 : stopIdx); i++) {
+        pushSeg(STREET_NAMES[order[i]], byStreet[order[i]]);
       }
     }
-    return parts.join(" → ");
+    return segs.join("");
   }
 
   /* 完整牌桌渲染 */
   function renderTable(question) {
-    const stageName = { preflop: "翻前", flop: "翻牌", turn: "转牌", river: "河牌" }[question.street];
     let seats;
     if (question.street === "preflop") {
       const positions = (question.prevLine || []).map((e) => e.who);
@@ -125,13 +149,11 @@ const Cards = (function () {
     if (question.street !== "preflop") {
       board = '<div class="board-cards">' + question.board.map((c) => cardHtml(c)).join("") + "</div>";
     }
-    const potLabel = question.street === "preflop" ? "底池" : "底池";
     return (
       '<div class="table-wrap"><div class="table-inner">' +
       seats +
       board +
-      (question.street !== "preflop" ? '<div class="board-label">' + stageName + "公共牌</div>" : "") +
-      '<div class="pot-badge"><small>' + potLabel + "</small>" + fmtPot(question.potSize) + " bb</div>" +
+      '<div class="pot-badge"><small>底池</small>' + fmtPot(question.potSize) + " bb</div>" +
       "</div></div>"
     );
   }

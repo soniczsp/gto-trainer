@@ -31,30 +31,50 @@ CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.j
 
 STREETS = ["preflop", "flop", "turn", "river"]
 
-PROMPT_TEMPLATE = """你是一名德州扑克GTO（博弈论最优）策略教练。请根据下面这道题的结构化信息，生成三段式讲解，帮助学员理解为什么这个动作是GTO选择。
+PROMPT_TEMPLATE = """你是资深德州扑克GTO（博弈论最优）策略教练。学员有半年以上牌龄，正在微/小级别现金局练习，目标是建立GTO打底思维。你只根据本题数据讲解，不编造任何数据。
 
-题目信息：
-- 牌局阶段：{street}
-- 你的位置：{hero_pos}
-- 你的手牌：{holding}
-- 底池大小：{pot_size} bb
+【题目数据】
+牌局阶段：{street}
+你的位置：{hero_pos}
+你的手牌：{holding}
+底池：{pot_size} bb
 {extra}
-- 可用动作：{moves}
-- 正确动作：{correct}
+可用动作：{moves}
+正确答案：{correct}
 
-要求：
-1. 第一段「为什么正确」：基于动作序列、位置、人数、底池等客观事实，解释正确动作成为 GTO 选择的原因。
-2. 第二段「常见误区」：说明学员最可能犯的错误选择是什么、为什么它不是最优。
-3. 第三段「一句话总结」：用一句通俗的话总结这个场景的核心原则。
-4. 严格使用以下格式输出，不要有任何其他内容：
+【讲解规则】
+1.【为什么正确】按以下顺序论证：
+   a. 推断对手大致范围：基于动作序列与位置，用"这类场景下对手通常拿着XX"的表述；范围强度必须与行动强度一致（动作越强，范围越强）
+   b. 引用题目事实与底池赔率：题目能算出赔率时必须实际计算并引用，算不出就完全不提数字
+   c. 讲我方正确动作代表的范围：这个动作属于哪种范围（宽防守/极化/线性/价值或诈唬偏重），以及你的手牌在这个范围里扮演什么角色（如"跟注范围里的中等强度牌"）
+   d. 对照双方范围与赔率，得出动作结论
+2.【常见误区】：分析题目中真实出现的错误选项，重点写两类错误：误判对手范围（高估或低估对方牌力），或把手牌放错自己的范围（如把应跟注的牌拿去加注）
+3.【一句话总结】：不超过30字，口语化，便于记忆
+4. 范围描述规范：
+   - 双方范围都必须基于题目动作序列推断，禁止凭空设定对手范围
+   - 翻前允许引用标准范围表的近似值（如"约前20%的开局范围"）；翻牌后只用定性档位（紧/宽/极化/线性的成牌或听牌结构）与代表性手牌（"可能包括XX"）
+   - 禁止编造精确百分比、组合数、EV、胜率等具体数据
+   - 事实与算术层必须用肯定句；范围与原理层允许"通常/这类场景"表述
+5. 每段60~150字，语言通俗，术语点到为止
+6. 全程以"你"为第一视角描述（如"你在HJ位开局2bb，被CO加注到6.5bb"），动作序列里的位置名不要混淆
+7. 论证过程自然衔接成文，不要使用a/b/c/d等编号
+8. 严格按此格式输出，不要输出其他内容：
 【为什么正确】
 ...
 【常见误区】
 ...
 【一句话总结】
 ...
-5. 只基于题目给出的结构化信息解释，禁止编造任何数据（如EV、范围、胜率、阻挡牌等未提供的信息），禁止使用"可能""大概"等模糊表述。
-6. 语言通俗易懂，面向有基础规则知识但策略经验不足的玩家，避免过多专业术语。"""
+
+【示例一·翻前】你 BB 位手持 KQo，HJ 开局加注 2bb，底池 5.5bb，选项[跟注/加注 6.5bb/弃牌]，正确答案：跟注
+【为什么正确】HJ 位开局通常拿着约前 20% 的范围，含大量 AX、同花连张和中等口袋对。你在 BB 位以 3.5bb 跟注，底池赔率约 1.6:1。跟注是 BB 防守范围的标准动作，这个范围本身偏宽，KQo 在其中属于中等偏上的强度，既能压制对手范围的 QJ、KT 等牌，又不会像加注那样把被你压制的牌赶走。这类场景下跟注看翻牌是最稳的选择。
+【常见误区】常见错误是把 KQo 拿去加注：加注是极化范围的动作，KQo 对抗对手跟注范围时经常被 AX 压制，翻后没位置很难玩；另一个错误是直接弃牌，低估了 BB 防守范围的宽度。
+【一句话总结】BB 位面对中位开局，KQo 跟注看翻牌最稳。
+
+【示例二·翻牌后】河牌，你 IP 位手持 88，底池 32，公共牌 Ks7h2d Jc 7c，对手翻前平跟后三条街一直过牌，河牌突然下注 24，选项[过牌/下注 24]，正确答案：过牌
+【为什么正确】对手翻前平跟、一路过牌到河牌，范围里有大量中等成牌和破灭的听牌，河牌突然下注代表范围极化，主要是 K 牌和诈唬。你的 88 只能赢诈唬、打不过价值段，摊牌价值有限。过牌是正确选择，你的过牌范围本来也包含大量中等对子，不需要用 88 主动下注去隔离一个极化范围。
+【常见误区】常见错误是跟注，觉得底池赔率不错；但对手河牌下注的范围里诈唬占比并不足以支撑跟注，88 在这种极化下注面前基本是抓诈唬的边缘牌。
+【一句话总结】对手河牌突然极化，88 过牌摊牌就好。"""
 
 
 def build_prompt(q):
@@ -70,11 +90,12 @@ def build_prompt(q):
             ("发牌 " + e["card"]) if e.get("type") == "deal"
             else ("%s %s" % (e["who"], e["act"]))
             for e in (q.get("postflopAction") or []))
-        extra = "- 翻前动作：%s\n- 公共牌：%s\n- 翻牌后动作：%s\n- 攻防位置：你 %s / 对手 %s" % (
+        opp = "OOP" if q.get("heroPos") == "IP" else "IP"
+        extra = "- 翻前动作：%s\n- 公共牌：%s\n- 翻牌后动作：%s\n- 攻防位置：你 %s / 对手 %s（进攻方 %s）" % (
             pre or "（无）",
             " ".join(q.get("board") or []),
             post or "（无）",
-            q.get("heroPos", "?"), q.get("aggressor", "?"))
+            q.get("heroPos", "?"), opp, q.get("aggressor", "?"))
 
     moves = " / ".join(m["label"] for m in q["moves"])
     return PROMPT_TEMPLATE.format(
@@ -141,7 +162,11 @@ def main():
     ap.add_argument("--street", choices=STREETS, help="只生成某条街（不传则全部）")
     ap.add_argument("--all", action="store_true", help="生成全部（默认）")
     ap.add_argument("--workers", type=int, default=4, help="并发数")
-    ap.add_argument("--limit", type=int, default=0, help="只生成前 N 题（调试用，0=不限制）")
+    ap.add_argument("--limit", type=int, default=0, help="只取前 N 题（调试用，0=不限制）")
+    ap.add_argument("--sample", type=int, default=0, help="随机抽样 N 题（固定种子，便于复现）")
+    ap.add_argument("--force", action="store_true", help="忽略已有结果，重新生成")
+    ap.add_argument("--progress-file", default=None, help="实时进度文件（每完成一题更新一次）")
+    ap.add_argument("--batch-size", type=int, default=0, help="每批最多生成 N 题，跑完自动退出（0=不限制）")
     args = ap.parse_args()
 
     cfg = load_config()
@@ -154,21 +179,37 @@ def main():
         questions = json.load(f)
 
     streets = [args.street] if args.street else STREETS
+    batch_done = 0
     for street in streets:
+        if args.batch_size and batch_done >= args.batch_size:
+            print("已达到本批上限 %d 题，停止。" % args.batch_size)
+            break
         qs = [q for q in questions if q["street"] == street]
-        if args.limit:
+        if args.sample:
+            import random
+            random.seed(20260801)
+            qs = random.sample(qs, min(args.sample, len(qs)))
+        elif args.limit:
             qs = qs[: args.limit]
         out_path = os.path.join(OUT_DIR, args.provider, street + ".json")
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
         # 断点续传：已有结果按 id 索引
         done = {}
-        if os.path.exists(out_path):
+        if os.path.exists(out_path) and not args.force:
             with open(out_path, encoding="utf-8") as f:
                 for item in json.load(f):
                     done[item["id"]] = item
+        if args.force:
+            done = {}
 
         todo = [q for q in qs if q["id"] not in done]
+        if args.batch_size:
+            remaining = args.batch_size - batch_done
+            if remaining <= 0:
+                print("已达到本批上限 %d 题，停止。" % args.batch_size)
+                break
+            todo = todo[:remaining]
         print("[%s] %s: 共 %d 题，已完成 %d，待生成 %d" % (
             provider.name, street, len(qs), len(done), len(todo)))
         if not todo:
@@ -177,6 +218,16 @@ def main():
         lock = threading.Lock()
         results = list(done.values())
         fails = []
+
+        progress = {s: 0 for s in STREETS}
+
+        def save_progress():
+            if args.progress_file:
+                try:
+                    with open(args.progress_file, "w", encoding="utf-8") as f:
+                        json.dump({"updated": time.time(), "progress": progress}, f)
+                except Exception:
+                    pass
 
         def work(q):
             for attempt in range(3):
@@ -192,6 +243,8 @@ def main():
                     }
                     with lock:
                         results.append(item)
+                        progress[street] += 1
+                        save_progress()
                     return
                 except Exception as e:
                     if attempt == 2:
@@ -209,6 +262,7 @@ def main():
         results.sort(key=lambda x: x["id"])
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=0)
+        batch_done += len(todo) - len(fails)
 
         print("[%s] %s 完成：成功 %d / 失败 %d，耗时 %.1f 分钟" % (
             provider.name, street, len(results) - len(fails), len(fails),
