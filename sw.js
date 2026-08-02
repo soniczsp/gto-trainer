@@ -1,5 +1,5 @@
-﻿/* GTO 策略训练器 Service Worker：首次访问后全量缓存，之后完全离线可用 */
-const CACHE = "gto-trainer-v9";
+﻿/* GTO 策略训练器 Service Worker：首次访问后缓存，离线可用；版本更新时自动清理旧缓存 */
+const CACHE = "gto-trainer-v10";
 
 const ASSETS = [
   "./",
@@ -53,9 +53,10 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // 静态资源（含 data/*.js?v=N）：缓存优先，忽略版本参数
+  // 静态资源（含 data/*.js?v=N）：按完整 URL（含版本参数）缓存优先；
+  // 数据更新时升版本号（POKER_DATA_VERSION / ?v=），新 URL 未命中即走网络，避免旧缓存残留
   e.respondWith(
-    caches.match(req, { ignoreSearch: true }).then((hit) => {
+    caches.match(req).then((hit) => {
       if (hit) return hit;
       return fetch(req).then((res) => {
         if (res.ok) {

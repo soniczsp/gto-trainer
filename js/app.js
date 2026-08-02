@@ -26,23 +26,30 @@
     return Promise.all(streets.map(loadBank)).then(() => streets.reduce((a, s) => a.concat(BANK[s]), []));
   }
 
-  /* ---------- 讲解加载（按街懒加载，无文件时静默） ---------- */
+  /* ---------- 讲解加载（按街懒加载，失败重试一次并提示） ---------- */
   const EXPL = { preflop: null, flop: null, turn: null, river: null };
 
   function loadExpl(street) {
     if (EXPL[street]) return Promise.resolve(EXPL[street]);
     return new Promise((resolve) => {
-      const s = document.createElement("script");
-      s.src = "data/expl_" + street + ".js?v=" + (window.POKER_DATA_VERSION || 1);
-      s.onload = () => {
-        EXPL[street] = window["POKER_EXPL__" + street] || [];
-        resolve(EXPL[street]);
+      let attempts = 0;
+      const tryLoad = () => {
+        attempts++;
+        const s = document.createElement("script");
+        s.src = "data/expl_" + street + ".js?v=" + (window.POKER_DATA_VERSION || 1);
+        s.onload = () => {
+          EXPL[street] = window["POKER_EXPL__" + street] || [];
+          resolve(EXPL[street]);
+        };
+        s.onerror = () => {
+          if (attempts < 2) { tryLoad(); return; }
+          EXPL[street] = [];
+          try { alert("讲解数据加载失败，请检查网络后重试"); } catch (e) {}
+          resolve(EXPL[street]);
+        };
+        document.head.appendChild(s);
       };
-      s.onerror = () => {
-        EXPL[street] = [];
-        resolve(EXPL[street]);
-      };
-      document.head.appendChild(s);
+      tryLoad();
     });
   }
 
