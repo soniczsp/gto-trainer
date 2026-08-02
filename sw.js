@@ -1,5 +1,5 @@
 ﻿/* GTO 策略训练器 Service Worker：首次访问后全量缓存，之后完全离线可用 */
-const CACHE = "gto-trainer-v9";
+const CACHE = "gto-trainer-v8";
 
 const ASSETS = [
   "./",
@@ -9,7 +9,6 @@ const ASSETS = [
   "./js/storage.js",
   "./js/cards.js",
   "./js/app.js",
-  "./js/tutorials.js",
   "./data/preflop.js",
   "./data/flop.js",
   "./data/turn.js",
@@ -68,7 +67,6 @@ self.addEventListener("fetch", (e) => {
     })
   );
 });
-
 
 
 
