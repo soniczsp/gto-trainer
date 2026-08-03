@@ -55,12 +55,26 @@
 
   function renderExpl(q) {
     const box = $("explain-box");
+    // 翻后三街讲解锁定（翻前完全免费）
+    // 翻前 / 翻牌讲解免费，转牌 / 河牌讲解锁定
+    if ((q.street === "turn" || q.street === "river") && !LICENSE.isUnlocked()) {
+      box.className = "explain-box locked";
+      box.innerHTML =
+        '<div class="explain-lock">🔒</div>' +
+        '<div class="explain-lock-title">讲解已锁定</div>' +
+        '<div class="explain-lock-desc">转牌 / 河牌的 GTO 讲解需要解锁。<br>买断 9.9 元，永久解锁全部 11000 道题讲解。</div>' +
+        '<button class="primary-btn small unlock-cta" id="btn-unlock-cta">🔓 解锁全部讲解</button>';
+      box.style.display = "block";
+      $("btn-unlock-cta").onclick = () => UnlockShow();
+      return;
+    }
     const list = EXPL[q.street] || [];
     const e = list.find((x) => x.id === q.id);
     if (!e) {
       box.style.display = "none";
       return;
     }
+    box.className = "explain-box";
     const x = e.explanation || {};
     const sec = (title, body) =>
       body ? '<div class="explain-sec"><div class="explain-h">' + title +
@@ -146,6 +160,52 @@
     }
   }
 
+  /* ---------- 解锁 ---------- */
+  const BUY_URL = "#"; // 面包多商品链接（待接入）
+
+  function UnlockShow() {
+    $("unlock-modal").style.display = "flex";
+    $("unlock-input").value = "";
+    $("unlock-msg").textContent = "";
+  }
+
+  function UnlockClose() {
+    $("unlock-modal").style.display = "none";
+  }
+
+  async function UnlockSubmit() {
+    const code = $("unlock-input").value;
+    const msg = $("unlock-msg");
+    if (!code.trim()) {
+      msg.textContent = "请粘贴解锁码";
+      return;
+    }
+    msg.textContent = "验证中…";
+    const r = await LICENSE.activate(code);
+    if (r.ok) {
+      msg.textContent = "✓ 解锁成功，讲解已开放！";
+      setTimeout(() => {
+        UnlockClose();
+        refreshHome();
+        // 动态加载当前街讲解数据后重渲染（解锁瞬间即可看到讲解，无需刷新）
+        if (Quiz.current) {
+          loadExpl(Quiz.current.street).then(() => renderExpl(Quiz.current));
+        }
+      }, 800);
+    } else if (r.reason === "used") {
+      msg.textContent = "该解锁码已被使用过（一码一用），请购买新的解锁码";
+    } else if (r.reason === "network") {
+      msg.textContent = "网络连接失败：激活需联网校验，可能需要代理，请开启代理后重试";
+    } else {
+      msg.textContent = "解锁码无效，请检查后重试";
+    }
+  }
+
+  // 暴露给内联事件
+  window.UnlockShow = UnlockShow;
+  window.UnlockClose = UnlockClose;
+  window.UnlockSubmit = UnlockSubmit;
+
   /* ---------- 首页 ---------- */
   async function refreshHome() {
     try {
@@ -155,6 +215,17 @@
       $("home-wrong").textContent = stats.wrongCount;
     } catch (e) {
       /* 存储不可用时静默 */
+    }
+    // 解锁入口状态
+    const btn = $("btn-unlock");
+    if (LICENSE.isUnlocked()) {
+      btn.textContent = "✅ 已解锁全部讲解";
+      btn.classList.add("done");
+      btn.disabled = true;
+    } else {
+      btn.textContent = "🔓 解锁全部讲解";
+      btn.classList.remove("done");
+      btn.disabled = false;
     }
   }
 
@@ -392,8 +463,12 @@
       res.style.display = "block";
 
       $("btn-next").style.display = "block";
-      // 异步加载并显示该题讲解（无讲解文件时静默隐藏）
-      loadExpl(q.street).then(() => renderExpl(q));
+      // 翻前 / 翻牌免费，或已解锁：加载讲解；转牌 / 河牌未解锁：直接显示锁定提示（不加载讲解文件）
+      if (q.street === "preflop" || q.street === "flop" || LICENSE.isUnlocked()) {
+        loadExpl(q.street).then(() => renderExpl(q));
+      } else {
+        renderExpl(q);
+      }
     },
 
     next() {
@@ -677,6 +752,17 @@
       if (e.key === "Enter") searchQuestion($("code-input").value);
     });
 
+    // 解锁入口
+    $("btn-unlock").onclick = () => UnlockShow();
+    $("unlock-close").onclick = () => UnlockClose();
+    $("unlock-modal").addEventListener("click", (e) => {
+      if (e.target === $("unlock-modal")) UnlockClose();
+    });
+    $("unlock-submit").onclick = () => UnlockSubmit();
+    $("unlock-input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") UnlockSubmit();
+    });
+
     $("btn-next").onclick = goNextDefault;
 
     $("btn-export").onclick = exportData;
@@ -687,13 +773,17 @@
     };
     $("btn-reset").onclick = resetAll;
 
-    // 支持制作者弹窗
+    // 打赏弹窗（仅解锁流程内"去打赏"使用，首页入口已移除）
     const supportModal = $("support-modal");
-    $("btn-support").onclick = () => { supportModal.style.display = "flex"; };
     $("support-close").onclick = () => { supportModal.style.display = "none"; };
     supportModal.addEventListener("click", (e) => {
       if (e.target === supportModal) supportModal.style.display = "none";
     });
+    // 解锁弹窗内的"去打赏"：关闭解锁弹窗，打开打赏弹窗（打赏后小红书私信索取解锁码）
+    $("unlock-buy").onclick = () => {
+      UnlockClose();
+      supportModal.style.display = "flex";
+    };
 
     $("btn-wrong-retry").onclick = startWrongRetry;
     $("btn-wrong-clear").onclick = () => {

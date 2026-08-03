@@ -1,5 +1,5 @@
 ﻿/* GTO 策略训练器 Service Worker：首次访问后缓存，离线可用；版本更新时自动清理旧缓存 */
-const CACHE = "gto-trainer-v10";
+const CACHE = "gto-trainer-v11";
 
 const ASSETS = [
   "./",
@@ -68,7 +68,6 @@ self.addEventListener("fetch", (e) => {
     })
   );
 });
-
 
 
 

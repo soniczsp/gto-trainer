@@ -79,7 +79,7 @@
       <button class="link-btn danger" id="btn-reset">重置进度</button>
       <input type="file" id="import-file" accept=".json" style="display:none">
     </div>
-    <button class="support-btn" id="btn-support">☕ 支持制作者</button>
+    <button class="unlock-btn" id="btn-unlock">🔓 解锁全部讲解</button>
     <p class="foot-note">数据与记录仅保存在本机浏览器，不联网、不上传</p>
   </div>
 
@@ -160,16 +160,35 @@
     <div class="stats-body" id="stats-body"></div>
   </div>
 
+  <!-- 解锁弹窗 -->
+  <div class="modal-mask" id="unlock-modal" style="display:none">
+    <div class="modal-box">
+      <button class="modal-close" id="unlock-close">✕</button>
+      <div class="modal-title">🔓 解锁全部讲解</div>
+      <div class="modal-desc">转牌 / 河牌的 GTO 讲解已锁定。<br>解锁价 <b>9.9 元</b>，永久解锁全部 11000 道题讲解，一次解锁，终身有效。</div>
+      <div class="modal-steps">
+        <div class="modal-step">① 打赏支持作者</div>
+        <div class="modal-step">② 打赏后截图，到小红书私信用户：<b><span id="unlock-xhs">636080025</span></b> 索取解锁码</div>
+        <div class="modal-step">③ 粘贴解锁码，点击下方激活</div>
+      </div>
+      <div class="unlock-tip">💡 激活需联网校验，如提示网络失败，可尝试开启代理后重试</div>
+      <button class="modal-buy-btn" id="unlock-buy">☕ 去打赏（微信）</button>
+      <div class="modal-divider">已有解锁码？直接激活</div>
+      <input class="unlock-input" id="unlock-input" type="text" placeholder="粘贴解锁码，如 GTO-XXXX-..." autocomplete="off">
+      <button class="modal-afd-btn" id="unlock-submit">激活解锁</button>
+      <div class="unlock-msg" id="unlock-msg"></div>
+    </div>
+  </div>
+
   <!-- 打赏弹窗 -->
   <div class="modal-mask" id="support-modal" style="display:none">
     <div class="modal-box">
       <button class="modal-close" id="support-close">✕</button>
       <div class="modal-title">☕ 支持制作者</div>
-      <div class="modal-desc">GTO 策略训练器完全免费。<br>如果它对你有所帮助，欢迎请作者喝杯咖啡，打赏随意。</div>
-      <a class="modal-afd-btn" href="https://www.afdian.com/order/create?plan_id=b7c038b68dfe11f1ac8c52540025c377&product_type=0&remark=&affiliate_code=" target="_blank" rel="noopener">💛 爱发电一键赞助</a>
-      <div class="modal-divider">或微信扫码</div>
+      <div class="modal-desc">非常感谢您的支持！</div>
+      <div class="modal-divider">微信扫码打赏</div>
       <img class="modal-qr" src="img/reward-wechat.jpg" alt="微信赞赏码">
-      <div class="modal-hint">微信扫一扫，感谢你的支持</div>
+      <div class="modal-hint">微信扫一扫打赏，打赏后到小红书私信作者索取解锁码</div>
     </div>
   </div>
 
@@ -190,10 +209,11 @@
 </div>
 
 <script>window.POKER_DATA_VERSION = 4;</script>
-<script src="js/tutorial.js?v=2"></script>
-<script src="js/storage.js?v=12"></script>
-<script src="js/cards.js?v=12"></script>
-<script src="js/app.js?v=12"></script>
+<script src="js/tutorial.js?v=1"></script>
+<script src="js/license.js"></script>
+<script src="js/storage.js?v=11"></script>
+<script src="js/cards.js?v=11"></script>
+<script src="js/app.js?v=15"></script>
 <script>
   // 注册 Service Worker：首次加载后全量缓存，离线可用
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
@@ -204,7 +224,6 @@
 </script>
 </body>
 </html>
-
 
 
 
