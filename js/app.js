@@ -96,7 +96,7 @@
 
   /* ---------- 页面路由 ---------- */
   let currentPage = "home";
-  const pages = ["home", "select", "quiz", "wrong", "stats"];
+  const pages = ["home", "select", "quiz", "wrong", "stats", "tutorial"];
 
   function showPage(name) {
     currentPage = name;
